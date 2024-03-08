@@ -4,7 +4,9 @@ use std::time::Duration;
 use axum::{Extension, Json, Router};
 use axum::body::Body;
 use axum::extract::Path;
-use axum::http::StatusCode;
+use axum::http::{Request, StatusCode};
+use axum::http::header::AUTHORIZATION;
+use axum::middleware::{from_fn, Next};
 use axum::response::Response;
 use axum::routing::{delete, post};
 use bwhc_dto::MtbFile;
@@ -14,10 +16,7 @@ use rdkafka::producer::{FutureProducer, FutureRecord};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Clone)]
-struct KafkaConfig {
-    dst_topic: String,
-}
+mod auth;
 
 #[derive(Serialize, Deserialize)]
 struct RecordKey {
@@ -29,8 +28,9 @@ struct RecordKey {
 
 #[tokio::main]
 async fn main() {
+    let _ = bcrypt_hashed_token();
+
     let boostrap_servers = env::var("KAFKA_BOOTSTRAP_SERVERS").unwrap_or("kafka:9094".into());
-    let dst_topic = env::var("APP_KAFKA_TOPIC").unwrap_or("etl-processor_input".into());
 
     let producer: FutureProducer = ClientConfig::new()
         .set("bootstrap.servers", boostrap_servers.as_str())
@@ -42,20 +42,31 @@ async fn main() {
         .route("/mtbfile", post(handle_post))
         .route("/mtbfile/:patient_id", delete(handle_delete))
         .layer(Extension(producer))
-        .layer(Extension(KafkaConfig { dst_topic }));
+        .layer(from_fn(check_basic_auth));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
+async fn check_basic_auth(request: Request<Body>, next: Next) -> Response {
+    if let Some(Ok(auth_header)) = request.headers().get(AUTHORIZATION).map(|x| x.to_str()) {
+        if auth::check_basic_auth(auth_header, &bcrypt_hashed_token()) {
+            return next.run(request).await;
+        }
+    }
+    Response::builder()
+        .status(StatusCode::UNAUTHORIZED)
+        .body(Body::empty())
+        .expect("response built")
+}
+
 async fn handle_delete(
     Path(patient_id): Path<String>,
     Extension(producer): Extension<FutureProducer>,
-    Extension(kafka_config): Extension<KafkaConfig>,
 ) -> Response {
     let delete_mtb_file = MtbFile::new_with_consent_rejected(&patient_id);
 
-    match send_mtb_file(producer, &kafka_config.dst_topic, delete_mtb_file).await {
+    match send_mtb_file(producer, &dst_topic(), delete_mtb_file).await {
         Ok(request_id) => success_response(&request_id),
         _ => error_response(),
     }
@@ -63,10 +74,9 @@ async fn handle_delete(
 
 async fn handle_post(
     Extension(producer): Extension<FutureProducer>,
-    Extension(kafka_config): Extension<KafkaConfig>,
     Json(mtb_file): Json<MtbFile>,
 ) -> Response {
-    match send_mtb_file(producer, &kafka_config.dst_topic, mtb_file).await {
+    match send_mtb_file(producer, &dst_topic(), mtb_file).await {
         Ok(request_id) => success_response(&request_id),
         _ => error_response(),
     }
@@ -127,4 +137,14 @@ fn error_response() -> Response {
         .status(StatusCode::INTERNAL_SERVER_ERROR)
         .body(Body::empty())
         .expect("response built")
+}
+
+fn dst_topic() -> String {
+    env::var("APP_KAFKA_TOPIC").unwrap_or("etl-processor_input".into())
+}
+
+fn bcrypt_hashed_token() -> String {
+    env::var("APP_SECURITY_TOKEN").unwrap_or_else(|_| {
+        panic!("Missing configuration 'APP_SECURITY_TOKEN'. Provide bcrypt hashed token value.")
+    })
 }

@@ -36,6 +36,12 @@ features = [ "cmake-build", "libz-static" ]
 version = "1.7"
 features = [ "v4" ]
 
+[dependencies.base64]
+version = "0.22"
+
+[dependencies.bcrypt]
+version = "0.15"
+
 [dependencies.bwhc-dto]
 git = "https://github.com/ccc-mf/bwhc-dto-rs"
 branch = "master"
