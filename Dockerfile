@@ -16,5 +16,5 @@ LABEL org.opencontainers.image.description="bwHC MTB-File REST Proxy für Kafka"
 
 COPY --from=back-stage /build/target/release/bwhc-kafka-rest-proxy .
 USER 65532
-EXPOSE 8000
+EXPOSE 3000
 CMD ["./bwhc-kafka-rest-proxy"]
