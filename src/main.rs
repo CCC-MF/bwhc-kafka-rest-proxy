@@ -111,7 +111,7 @@ async fn send_mtb_file(
     };
 
     let record_headers = OwnedHeaders::default().insert(Header {
-        key: "request_id",
+        key: "requestId",
         value: Some(&request_id.to_string()),
     });
 
