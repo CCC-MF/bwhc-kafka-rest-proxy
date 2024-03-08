@@ -14,6 +14,8 @@ use rdkafka::ClientConfig;
 use rdkafka::message::{Header, OwnedHeaders};
 use rdkafka::producer::{FutureProducer, FutureRecord};
 use serde::{Deserialize, Serialize};
+#[cfg(debug_assertions)]
+use tower_http::trace::TraceLayer;
 use uuid::Uuid;
 
 mod auth;
@@ -30,6 +32,13 @@ struct RecordKey {
 async fn main() {
     let _ = bcrypt_hashed_token();
 
+    #[cfg(debug_assertions)]
+    {
+        tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::DEBUG)
+            .init();
+    }
+
     let boostrap_servers = env::var("KAFKA_BOOTSTRAP_SERVERS").unwrap_or("kafka:9094".into());
 
     let producer: FutureProducer = ClientConfig::new()
@@ -43,6 +52,9 @@ async fn main() {
         .route("/mtbfile/:patient_id", delete(handle_delete))
         .layer(Extension(producer))
         .layer(from_fn(check_basic_auth));
+
+    #[cfg(debug_assertions)]
+    let app = app.layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
