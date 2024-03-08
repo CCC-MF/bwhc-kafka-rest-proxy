@@ -56,3 +56,10 @@ version = "0.15"
 [dependencies.bwhc-dto]
 git = "https://github.com/ccc-mf/bwhc-dto-rs"
 branch = "master"
+
+[profile.release]
+opt-level = "s"
+codegen-units = 1
+lto = "thin"
+strip = true
+panic = "abort"
