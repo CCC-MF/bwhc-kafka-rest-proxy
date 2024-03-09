@@ -6,6 +6,8 @@ RUN apk add cmake make musl-dev g++
 WORKDIR /build
 COPY Cargo.toml ./
 COPY src ./src
+# Run tests before release build
+RUN cargo test --release
 RUN cargo build --release
 
 # Build image from scratch
