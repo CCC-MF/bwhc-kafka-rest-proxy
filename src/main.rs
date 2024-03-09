@@ -1,18 +1,18 @@
 use std::env;
 use std::time::Duration;
 
-use axum::{Extension, Json, Router};
 use axum::body::Body;
 use axum::extract::Path;
-use axum::http::{Request, StatusCode};
 use axum::http::header::AUTHORIZATION;
+use axum::http::{Request, StatusCode};
 use axum::middleware::{from_fn, Next};
 use axum::response::Response;
 use axum::routing::{delete, post};
+use axum::{Extension, Json, Router};
 use bwhc_dto::MtbFile;
-use rdkafka::ClientConfig;
 use rdkafka::message::{Header, OwnedHeaders};
 use rdkafka::producer::{FutureProducer, FutureRecord};
+use rdkafka::ClientConfig;
 use serde::{Deserialize, Serialize};
 #[cfg(debug_assertions)]
 use tower_http::trace::TraceLayer;
@@ -24,8 +24,6 @@ mod auth;
 struct RecordKey {
     #[serde(rename = "pid")]
     patient_id: String,
-    #[serde(rename = "eid", skip_serializing_if = "Option::is_none")]
-    episode_id: Option<String>,
 }
 
 #[tokio::main]
@@ -103,11 +101,6 @@ async fn send_mtb_file(
 
     let record_key = RecordKey {
         patient_id: mtb_file.patient.id.to_string(),
-        episode_id: if mtb_file.episode.id.is_empty() {
-            None
-        } else {
-            Some(mtb_file.episode.id.to_string())
-        },
     };
 
     let record_headers = OwnedHeaders::default().insert(Header {
