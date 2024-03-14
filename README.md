@@ -25,6 +25,8 @@ Options:
           Kafka Topic [env: APP_KAFKA_TOPIC=] [default: etl-processor_input]
       --token <TOKEN>
           bcrypt hashed Security Token [env: APP_SECURITY_TOKEN=]
+      --listen <LISTEN>
+          Address and port for HTTP requests [env: APP_LISTEN=] [default: 0.0.0.0:3000]
 ```
 
 Die Anwendung lässt sich auch mit Umgebungsvariablen konfigurieren.
@@ -32,6 +34,7 @@ Die Anwendung lässt sich auch mit Umgebungsvariablen konfigurieren.
 * `APP_KAFKA_SERVERS`: Zu verwendende Kafka-Bootstrap-Server als kommagetrennte Liste
 * `APP_KAFKA_TOPIC`: Zu verwendendes Topic zum Warten auf neue Anfragen. Standardwert: `etl-processor_input`
 * `APP_SECURITY_TOKEN`: Verpflichtende Angabe es Tokens als *bcrypt*-Hash
+* `APP_LISTEN`: Adresse und Port für eingehende HTTP-Requests. Standardwert: `0.0.0.0:3000` - Port `3000` auf allen Adressen
 
 ## HTTP-Requests
 

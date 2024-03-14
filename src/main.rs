@@ -58,8 +58,15 @@ async fn main() {
     #[cfg(debug_assertions)]
     let app = app.layer(TraceLayer::new_for_http());
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    match tokio::net::TcpListener::bind(&CONFIG.listen).await {
+        Ok(listener) => {
+            log::info!("Starting application listening on '{}'", CONFIG.listen);
+            if let Err(err) = axum::serve(listener, app).await {
+                log::error!("Error starting application: {}", err)
+            }
+        }
+        Err(err) => log::error!("Error listening on '{}': {}", CONFIG.listen, err),
+    };
 }
 
 async fn check_basic_auth(request: Request<Body>, next: Next) -> Response {

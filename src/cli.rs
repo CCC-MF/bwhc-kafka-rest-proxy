@@ -27,4 +27,11 @@ pub struct Cli {
         help = "bcrypt hashed Security Token"
     )]
     pub token: String,
+    #[arg(
+        long,
+        env = "APP_LISTEN",
+        default_value = "0.0.0.0:3000",
+        help = "Address and port for HTTP requests"
+    )]
+    pub listen: String,
 }
