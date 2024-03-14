@@ -30,7 +30,7 @@ pub struct Cli {
     #[arg(
         long,
         env = "APP_LISTEN",
-        default_value = "0.0.0.0:3000",
+        default_value = "[::]:3000",
         help = "Address and port for HTTP requests"
     )]
     pub listen: String,
