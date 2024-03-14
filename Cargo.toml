@@ -8,6 +8,13 @@ description = "bwHC MTB-File REST Proxy für Kafka"
 
 # Dependencies
 
+[dependencies.clap]
+version = "4.5"
+features = ["derive", "env"]
+
+[dependencies.lazy_static]
+version = "1.4"
+
 [dependencies.log]
 version = "0.4"
 

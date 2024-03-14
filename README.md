@@ -13,7 +13,21 @@ Verwendung im Zusammenspiel mit https://github.com/CCC-MF/etl-processor
 
 ## Konfiguration
 
-Die Anwendung lässt sich mit Umgebungsvariablen konfigurieren.
+Beim Start der Anwendung können Parameter angegeben werden.
+
+```
+Usage: bwhc-kafka-rest-proxy [OPTIONS] --token <TOKEN>
+
+Options:
+      --bootstrap-server <BOOTSTRAP_SERVER>
+          Kafka Bootstrap-Server(s) [env: KAFKA_BOOTSTRAP_SERVERS=] [default: kafka:9094]
+      --topic <TOPIC>
+          Kafka Topic [env: APP_KAFKA_TOPIC=] [default: etl-processor_input]
+      --token <TOKEN>
+          bcrypt hashed Security Token [env: APP_SECURITY_TOKEN=]
+```
+
+Die Anwendung lässt sich auch mit Umgebungsvariablen konfigurieren.
 
 * `APP_KAFKA_SERVERS`: Zu verwendende Kafka-Bootstrap-Server als kommagetrennte Liste
 * `APP_KAFKA_TOPIC`: Zu verwendendes Topic zum Warten auf neue Anfragen. Standardwert: `etl-processor_input`
@@ -81,10 +95,10 @@ Resultierender Kafka-Record:
 
 #### Löschen von Patienten
 
-Anfrage auch hier mit **curl**:
+Anfrage auch hier mit *curl*:
 
 ```bash
-curl -v -u token:very-secret \
+curl -u token:very-secret \
   -H "Content-Type: application/json" \
   -X DELETE \
   http://localhost:3000/mtbfile/P1
