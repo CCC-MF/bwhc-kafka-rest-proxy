@@ -154,3 +154,26 @@ fn error_response() -> Response {
         .body(Body::empty())
         .expect("response built")
 }
+
+#[cfg(test)]
+mod tests {
+    use axum::http::StatusCode;
+    use uuid::Uuid;
+
+    use crate::{error_response, success_response};
+
+    #[test]
+    fn should_return_success_response() {
+        let response = success_response(&Uuid::new_v4().to_string());
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        assert!(response.headers().contains_key("x-request-id"));
+    }
+
+    #[test]
+    fn should_return_error_response() {
+        let response = error_response();
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(response.headers().contains_key("x-request-id"), false);
+    }
+
+}
