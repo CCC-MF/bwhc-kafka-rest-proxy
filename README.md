@@ -34,7 +34,11 @@ Die Anwendung lässt sich auch mit Umgebungsvariablen konfigurieren.
 * `APP_KAFKA_SERVERS`: Zu verwendende Kafka-Bootstrap-Server als kommagetrennte Liste
 * `APP_KAFKA_TOPIC`: Zu verwendendes Topic zum Warten auf neue Anfragen. Standardwert: `etl-processor_input`
 * `APP_SECURITY_TOKEN`: Verpflichtende Angabe es Tokens als *bcrypt*-Hash
-* `APP_LISTEN`: Adresse und Port für eingehende HTTP-Requests. Standardwert: `[::]:3000` - Port `3000` auf allen Adressen (IPv4 und IPv6)
+* `APP_LISTEN`: Adresse und Port für eingehende HTTP-Requests. Standardwert: `[::]:3000` - Port `3000` auf allen
+  Adressen (IPv4 und IPv6)
+
+Die Angabe eines Tokens ist verpflichtend und kann entweder über den Parameter `--token` erfolgen, oder über die
+Umgebungsvariable `APP_SECURITY_TOKEN`.
 
 ## HTTP-Requests
 
@@ -94,7 +98,8 @@ Resultierender Kafka-Record:
 * **Key**: `{"pid":"P1"}`
 * **Headers**:
     * `requestId`: `1804d5c1-af3d-4f75-81a0-d9ca7c9739ef`
-* **Value**: `{"consent":{"id":"C1","patient":"P1","status":"active"},"episode":{"id":"E1","patient":"P1","period":{"start":"2024-03-01"}},"patient":{"gender":"unknown","id":"P1"}}`
+* **Value
+  **: `{"consent":{"id":"C1","patient":"P1","status":"active"},"episode":{"id":"E1","patient":"P1","period":{"start":"2024-03-01"}},"patient":{"gender":"unknown","id":"P1"}}`
 
 #### Löschen von Patienten
 
@@ -121,11 +126,13 @@ Resultierender Kafka-Record:
 * **Key**: `{"pid":"P1"}`
 * **Headers**:
     * `requestId`: `8473fa67-8b18-4e8f-aa89-874f74fcc672`
-* **Value**: `{"consent":{"id":"","patient":"P1","status":"rejected"},"episode":{"id":"","patient":"P1","period":{"start":""}},"patient":{"gender":"unknown","id":"P1"}}`
+* **Value
+  **: `{"consent":{"id":"","patient":"P1","status":"rejected"},"episode":{"id":"","patient":"P1","period":{"start":""}},"patient":{"gender":"unknown","id":"P1"}}`
 
 Es werden keine weiteren patientenbezogenen Daten übermittelt.
 
-In optionaler Verbindung mit [Key-Based-Retention](https://github.com/CCC-MF/etl-processor#key-based-retention) wird lediglich der
+In optionaler Verbindung mit [Key-Based-Retention](https://github.com/CCC-MF/etl-processor#key-based-retention) wird
+lediglich der
 letzte und aktuelle Record, hier die Information eines Consent-Widerspruchs, in Kafka vorgehalten.
 
 Trifft dieser Kafka-Record im [ETL-Prozessor](https://github.com/CCC-MF/etl-processor) ein, so wird dort ebenfalls eine
