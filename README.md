@@ -98,8 +98,7 @@ Resultierender Kafka-Record:
 * **Key**: `{"pid":"P1"}`
 * **Headers**:
     * `requestId`: `1804d5c1-af3d-4f75-81a0-d9ca7c9739ef`
-* **Value
-  **: `{"consent":{"id":"C1","patient":"P1","status":"active"},"episode":{"id":"E1","patient":"P1","period":{"start":"2024-03-01"}},"patient":{"gender":"unknown","id":"P1"}}`
+* **Value**: `{"consent":{"id":"C1","patient":"P1","status":"active"},"episode":{"id":"E1","patient":"P1","period":{"start":"2024-03-01"}},"patient":{"gender":"unknown","id":"P1"}}`
 
 #### Löschen von Patienten
 
@@ -126,8 +125,7 @@ Resultierender Kafka-Record:
 * **Key**: `{"pid":"P1"}`
 * **Headers**:
     * `requestId`: `8473fa67-8b18-4e8f-aa89-874f74fcc672`
-* **Value
-  **: `{"consent":{"id":"","patient":"P1","status":"rejected"},"episode":{"id":"","patient":"P1","period":{"start":""}},"patient":{"gender":"unknown","id":"P1"}}`
+* **Value**: `{"consent":{"id":"","patient":"P1","status":"rejected"},"episode":{"id":"","patient":"P1","period":{"start":""}},"patient":{"gender":"unknown","id":"P1"}}`
 
 Es werden keine weiteren patientenbezogenen Daten übermittelt.
 
