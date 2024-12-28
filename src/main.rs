@@ -1,6 +1,6 @@
 use axum::body::Body;
-use axum::http::header::AUTHORIZATION;
-use axum::http::{Request, StatusCode};
+use axum::http::header::{AUTHORIZATION, CONTENT_TYPE};
+use axum::http::{HeaderValue, Request, StatusCode};
 use axum::middleware::{from_fn, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{delete, post};
@@ -14,7 +14,7 @@ use tower_http::trace::TraceLayer;
 use crate::cli::Cli;
 use crate::routes::{handle_delete, handle_post};
 use crate::sender::MtbFileSender;
-use crate::AppResponse::{Accepted, InternalServerError, Unauthorized};
+use crate::AppResponse::{Accepted, Unauthorized, UnsupportedContentType};
 
 mod auth;
 mod cli;
@@ -31,20 +31,26 @@ enum AppResponse<'a> {
     Accepted(&'a str),
     Unauthorized,
     InternalServerError,
+    UnsupportedContentType,
 }
 
 #[allow(clippy::expect_used)]
 impl IntoResponse for AppResponse<'_> {
     fn into_response(self) -> Response {
         match self {
-            Accepted(request_id) => Response::builder()
-                .status(StatusCode::ACCEPTED)
-                .header("X-Request-Id", request_id),
-            Unauthorized => Response::builder().status(StatusCode::UNAUTHORIZED),
-            InternalServerError => Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR),
+            UnsupportedContentType => (
+                StatusCode::UNSUPPORTED_MEDIA_TYPE,
+                "This application accepts bwHC data model version 1 with content type 'application/json'"
+            ).into_response(),
+            _ => match self {
+                Accepted(request_id) => Response::builder()
+                    .status(StatusCode::ACCEPTED)
+                    .header("X-Request-Id", request_id),
+                Unauthorized => Response::builder().status(StatusCode::UNAUTHORIZED),
+                _ => Response::builder().status(StatusCode::INTERNAL_SERVER_ERROR),
+            }
+            .body(Body::empty()).expect("response built"),
         }
-        .body(Body::empty())
-        .expect("response built")
     }
 }
 
@@ -67,6 +73,7 @@ async fn main() -> Result<(), ()> {
         .route("/mtbfile", post(handle_post))
         .route("/mtbfile/:patient_id", delete(handle_delete))
         .layer(Extension(sender))
+        .layer(from_fn(check_content_type_header))
         .layer(from_fn(check_basic_auth));
 
     #[cfg(debug_assertions)]
@@ -83,6 +90,17 @@ async fn main() -> Result<(), ()> {
     };
 
     Ok(())
+}
+
+async fn check_content_type_header(request: Request<Body>, next: Next) -> Response {
+    match request
+        .headers()
+        .get(CONTENT_TYPE)
+        .map(HeaderValue::as_bytes)
+    {
+        Some(b"application/json" | b"application/json; charset=utf-8") => next.run(request).await,
+        _ => UnsupportedContentType.into_response(),
+    }
 }
 
 async fn check_basic_auth(request: Request<Body>, next: Next) -> Response {
