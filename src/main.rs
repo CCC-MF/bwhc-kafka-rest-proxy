@@ -1,12 +1,10 @@
 use axum::body::Body;
-use axum::extract::Path;
 use axum::http::header::AUTHORIZATION;
 use axum::http::{Request, StatusCode};
 use axum::middleware::{from_fn, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{delete, post};
-use axum::{Extension, Json, Router};
-use bwhc_dto::MtbFile;
+use axum::{Extension, Router};
 use clap::Parser;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -14,11 +12,13 @@ use serde::{Deserialize, Serialize};
 use tower_http::trace::TraceLayer;
 
 use crate::cli::Cli;
+use crate::routes::{handle_delete, handle_post};
 use crate::sender::MtbFileSender;
 use crate::AppResponse::{Accepted, InternalServerError, Unauthorized};
 
 mod auth;
 mod cli;
+mod routes;
 mod sender;
 
 #[derive(Serialize, Deserialize)]
@@ -92,28 +92,6 @@ async fn check_basic_auth(request: Request<Body>, next: Next) -> Response {
         }
     }
     Unauthorized.into_response()
-}
-
-async fn handle_delete(
-    Path(patient_id): Path<String>,
-    Extension(sender): Extension<MtbFileSender>,
-) -> Response {
-    let delete_mtb_file = MtbFile::new_with_consent_rejected(&patient_id);
-
-    match sender.send(delete_mtb_file).await {
-        Ok(request_id) => Accepted(&request_id).into_response(),
-        _ => InternalServerError.into_response(),
-    }
-}
-
-async fn handle_post(
-    Extension(sender): Extension<MtbFileSender>,
-    Json(mtb_file): Json<MtbFile>,
-) -> Response {
-    match sender.send(mtb_file).await {
-        Ok(request_id) => Accepted(&request_id).into_response(),
-        _ => InternalServerError.into_response(),
-    }
 }
 
 #[cfg(test)]
