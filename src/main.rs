@@ -1,11 +1,11 @@
-use axum::{Extension, Json, Router};
 use axum::body::Body;
 use axum::extract::Path;
-use axum::http::{Request, StatusCode};
 use axum::http::header::AUTHORIZATION;
+use axum::http::{Request, StatusCode};
 use axum::middleware::{from_fn, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{delete, post};
+use axum::{Extension, Json, Router};
 use bwhc_dto::MtbFile;
 use clap::Parser;
 use lazy_static::lazy_static;
@@ -13,9 +13,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(debug_assertions)]
 use tower_http::trace::TraceLayer;
 
-use crate::AppResponse::{Accepted, InternalServerError, Unauthorized};
 use crate::cli::Cli;
 use crate::sender::MtbFileSender;
+use crate::AppResponse::{Accepted, InternalServerError, Unauthorized};
 
 mod auth;
 mod cli;
@@ -33,6 +33,7 @@ enum AppResponse<'a> {
     InternalServerError,
 }
 
+#[allow(clippy::expect_used)]
 impl IntoResponse for AppResponse<'_> {
     fn into_response(self) -> Response {
         match self {
@@ -52,7 +53,7 @@ lazy_static! {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), ()> {
     #[cfg(debug_assertions)]
     {
         tracing_subscriber::fmt()
@@ -60,7 +61,7 @@ async fn main() {
             .init();
     }
 
-    let sender = MtbFileSender::new(&CONFIG.topic, &CONFIG.bootstrap_server);
+    let sender = MtbFileSender::new(&CONFIG.topic, &CONFIG.bootstrap_server)?;
 
     let app = Router::new()
         .route("/mtbfile", post(handle_post))
@@ -75,11 +76,13 @@ async fn main() {
         Ok(listener) => {
             log::info!("Starting application listening on '{}'", CONFIG.listen);
             if let Err(err) = axum::serve(listener, app).await {
-                log::error!("Error starting application: {}", err)
+                log::error!("Error starting application: {}", err);
             }
         }
         Err(err) => log::error!("Error listening on '{}': {}", CONFIG.listen, err),
     };
+
+    Ok(())
 }
 
 async fn check_basic_auth(request: Request<Body>, next: Next) -> Response {

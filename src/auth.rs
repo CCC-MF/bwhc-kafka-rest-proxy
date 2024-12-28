@@ -1,6 +1,7 @@
 use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
 
+#[allow(clippy::module_name_repetitions)]
 pub fn check_basic_auth(auth_header: &str, expected_token: &str) -> bool {
     let split = auth_header.split(' ').collect::<Vec<_>>();
     if split.len() == 2 && split.first().map(|first| first.to_lowercase()) == Some("basic".into()) {

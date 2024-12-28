@@ -61,6 +61,19 @@ version = "0.16"
 git = "https://github.com/ccc-mf/bwhc-dto-rs"
 branch = "master"
 
+# Lints
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+pedantic = { level = "warn", priority = -1 }
+
+[lints.rust]
+unused_must_use = "deny"
+
+# Profiles
+
 [profile.release]
 opt-level = "s"
 codegen-units = 1
