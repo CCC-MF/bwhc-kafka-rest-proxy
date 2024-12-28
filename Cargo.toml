@@ -13,13 +13,10 @@ version = "4.5"
 features = ["derive", "env"]
 
 [dependencies.lazy_static]
-version = "1.4"
+version = "1.5"
 
 [dependencies.log]
 version = "0.4"
-
-[dependencies.simple-log]
-version = "1.6"
 
 [dependencies.axum]
 version = "0.7"
@@ -32,11 +29,11 @@ version = "0.3"
 version = "0.1"
 
 [dependencies.tokio]
-version = "1.38"
+version = "1.42"
 features = ["rt-multi-thread"]
 
 [dependencies.tower-http]
-version = "0.5"
+version = "0.6"
 features = ["trace"]
 
 [dependencies.serde]
@@ -47,7 +44,7 @@ features = ["derive"]
 version = "1.0"
 
 [dependencies.rdkafka]
-version = "0.36"
+version = "0.37"
 features = ["cmake-build", "libz-static"]
 
 [dependencies.uuid]
@@ -58,7 +55,7 @@ features = ["v4"]
 version = "0.22"
 
 [dependencies.bcrypt]
-version = "0.15"
+version = "0.16"
 
 [dependencies.bwhc-dto]
 git = "https://github.com/ccc-mf/bwhc-dto-rs"
