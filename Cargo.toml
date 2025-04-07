@@ -1,6 +1,6 @@
 [package]
 name = "bwhc-kafka-rest-proxy"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 authors = ["Paul-Christian Volkmer <volkmer_p@ukw.de>"]
 license = "AGPL-3.0"
@@ -11,9 +11,6 @@ description = "bwHC MTB-File REST Proxy für Kafka"
 [dependencies.clap]
 version = "4.5"
 features = ["derive", "env"]
-
-[dependencies.lazy_static]
-version = "1.5"
 
 [dependencies.log]
 version = "0.4"

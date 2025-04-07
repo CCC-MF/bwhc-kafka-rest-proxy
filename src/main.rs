@@ -6,8 +6,8 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::{delete, post};
 use axum::{Extension, Router};
 use clap::Parser;
-use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use std::sync::LazyLock;
 #[cfg(debug_assertions)]
 use tower_http::trace::TraceLayer;
 
@@ -54,9 +54,7 @@ impl IntoResponse for AppResponse<'_> {
     }
 }
 
-lazy_static! {
-    static ref CONFIG: Cli = Cli::parse();
-}
+static CONFIG: LazyLock<Cli> = LazyLock::new(Cli::parse);
 
 #[tokio::main]
 async fn main() -> Result<(), ()> {
