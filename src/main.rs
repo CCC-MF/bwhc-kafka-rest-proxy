@@ -70,6 +70,8 @@ async fn main() -> Result<(), ()> {
     let app = Router::new()
         .route("/mtbfile", post(handle_post))
         .route("/mtbfile/:patient_id", delete(handle_delete))
+        .route("/mtb", post(handle_post))
+        .route("/mtb/:patient_id", delete(handle_delete))
         .layer(Extension(sender))
         .layer(from_fn(check_content_type_header))
         .layer(from_fn(check_basic_auth));
