@@ -29,7 +29,7 @@ version = "0.3"
 version = "0.1"
 
 [dependencies.tokio]
-version = "1.42"
+version = "1.44"
 features = ["rt-multi-thread"]
 
 [dependencies.tower-http]
@@ -48,7 +48,7 @@ version = "0.37"
 features = ["cmake-build", "libz-static"]
 
 [dependencies.uuid]
-version = "1.8"
+version = "1.16"
 features = ["v4"]
 
 [dependencies.base64]
