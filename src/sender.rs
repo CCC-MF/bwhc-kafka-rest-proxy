@@ -36,10 +36,15 @@ impl MtbFileSender {
             patient_id: mtb_file.patient.id.to_string(),
         };
 
-        let record_headers = OwnedHeaders::default().insert(Header {
-            key: "requestId",
-            value: Some(&request_id.to_string()),
-        });
+        let record_headers = OwnedHeaders::default()
+            .insert(Header {
+                key: "contentType",
+                value: Some("application/json"),
+            })
+            .insert(Header {
+                key: "requestId",
+                value: Some(&request_id.to_string()),
+            });
 
         let record_key = serde_json::to_string(&record_key).map_err(|_| ())?;
 
